@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>Keynote</title>
+        <meta name="viewport" content="initial-scale = 1.0, minimum-scale = 1.0, maximum-scale = 1.0, user-scalable = no, width = device-width" />
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <link rel="stylesheet" type="text/css" href="./assets/player/styles.css">
+        <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+    </head>
+    <body id="body" bgcolor="black">
+        <div id="stageArea">
+            <div id="stage" class="stage">
+            </div>
+            <div id="hyperlinkPlane" class="stage">
+            </div>
+        </div>
+        <div id="slideshowNavigator">
+        </div>
+        <div id="slideNumberControl">
+        </div>
+        <div id="slideNumberDisplay">
+        </div>
+        <div id="helpPlacard">
+        </div>
+        <div id="waitingIndicator">
+            <div id="waitingSpinner">
+            </div>
+        </div>
+        <script type="text/javascript" src="./assets/player/pdfjs/bcmaps.js"></script></body>
+        <script type="text/javascript" src="./assets/player/pdfjs/web/compatibility.js"></script></body>
+        <script type="text/javascript" src="./assets/player/pdfjs/pdf.js"></script></body>
+        <script type="text/javascript" src="./assets/player/main.js"></script></body>
+        <script type="text/javascript">
+            let identification = "";
+            const sideBar = document.getElementById("slideshowNavigator");
+            sideBar.style.display = "none";
+            window.addEventListener("keydown", function (event) {
+                event.stopPropagation();
+            }, true);
+            window.addEventListener('hashchange', function() {
+                let pagina = window.location.hash.substring(1,window.location.hash.length);
+                if(pagina !== ""){
+                    $.post(getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1] + "/" + '/setpageatual.php', {page:pagina, id:identification}).done(function(response){
+                    });
+                }else{
+                    $.post(getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1] + "/" + '/setpageatual.php', {page:0, id:identification}).done(function(response){
+                    });
+                }
+                location.reload();
+            }, false);
+            $('body').click(function(){
+                var getUrl = window.location;
+                $.get('./assets/header.json').done(function(response){
+                        let id = response.title.substring(0, response.title.indexOf("."));
+                        identification = id;
+                });
+                setTimeout(()=>{
+                    let pagina = window.location.hash.substring(1,window.location.hash.length);
+                    $.post(getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1] + "/" + '/setpageatual.php', {page:pagina, id:identification}).done(function(response){
+                    }); 
+                },500);
+              });
+              
+              $( document ).ready(function() {
+                var getUrl = window.location;
+                $.get('./assets/header.json').done(function(response){
+                        let id = response.title.substring(0, response.title.indexOf("."));
+                        identification = id;
+
+                        let pagina = window.location.hash.substring(1,window.location.hash.length);
+                        if(pagina !== ""){
+                            $.post(getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1] + "/" + '/setpageatual.php', {page:pagina, id:identification}).done(function(response){
+                            });
+                        }else{
+                            $.post(getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1] + "/" + '/setpageatual.php', {page:0, id:identification}).done(function(response){
+                            });
+                        }
+                });
+                
+              });
+        </script>
+    </body>
+    
+</html>

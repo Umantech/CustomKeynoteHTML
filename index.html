@@ -4,7 +4,8 @@
         <title>Keynote</title>
         <meta name="viewport" content="initial-scale = 1.0, minimum-scale = 1.0, maximum-scale = 1.0, user-scalable = no, width = device-width" />
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <link rel="stylesheet" type="text/css" href="assets/player/styles.css">
+        <link rel="stylesheet" type="text/css" href="./assets/player/styles.css">
+        <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
     </head>
     <body id="body" bgcolor="black">
         <div id="stageArea">
@@ -25,16 +26,45 @@
             <div id="waitingSpinner">
             </div>
         </div>
-        <script type="text/javascript" src="assets/player/pdfjs/bcmaps.js"></script></body>
-        <script type="text/javascript" src="assets/player/pdfjs/web/compatibility.js"></script></body>
-        <script type="text/javascript" src="assets/player/pdfjs/pdf.js"></script></body>
-        <script type="text/javascript" src="assets/player/main.js"></script></body>
+        <script type="text/javascript" src="./assets/player/pdfjs/bcmaps.js"></script></body>
+        <script type="text/javascript" src="./assets/player/pdfjs/web/compatibility.js"></script></body>
+        <script type="text/javascript" src="./assets/player/pdfjs/pdf.js"></script></body>
+        <script type="text/javascript" src="./assets/player/main.js"></script></body>
         <script type="text/javascript">
+            let identification = "";
             const sideBar = document.getElementById("slideshowNavigator");
             sideBar.style.display = "none";
             window.addEventListener("keydown", function (event) {
                 event.stopPropagation();
             }, true);
+                
+              $( document ).ready(function() {
+                $(body).css({pointerEvents:"none"});
+                var getUrl = window.location;
+                $.get('./assets/header.json').done(function(response){
+                    let id = response.title.substring(0, response.title.indexOf("."));
+                    identification = id;
+
+                    $.get(getUrl .protocol + "//" + getUrl.host + "/" +getUrl.pathname.split('/')[1] + "/" + '/getpage.php?id='+identification).done(function(response2){
+                            let resposta2 = JSON.parse(response2);
+                            window.location.hash = "#"+resposta2.paginaAtual;
+                    }); 
+                    setInterval(()=>{
+                        $.get(getUrl .protocol + "//" + getUrl.host + "/" +getUrl.pathname.split('/')[1] + "/" + '/getpage.php?id='+identification).done(function(response){
+                            let resposta = JSON.parse(response);
+                            let paginaAtual = resposta.paginaAtual;
+                            let paginaAnterior = resposta.paginaAnterior;
+                            if(paginaAnterior !== paginaAtual){
+                                $.post(getUrl .protocol + "//" + getUrl.host + "/" +getUrl.pathname.split('/')[1] + "/" + '/setpageanterior.php', {page:paginaAtual, id:identification}).done(function(response2){
+                                window.location.hash = "#"+paginaAtual;
+                                location.reload();
+                            }); 
+                            }
+                        }); 
+                    },1000);
+              });
+            });
         </script>
     </body>
+    
 </html>
