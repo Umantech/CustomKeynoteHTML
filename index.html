@@ -6,8 +6,18 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <link rel="stylesheet" type="text/css" href="./assets/player/styles.css">
         <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+        <style>
+            #invisible-layer{
+                position:absolute;
+                z-index:100000;
+                width:100%;
+                height: 100%;
+                pointer-events: all;
+            }
+        </style>
     </head>
     <body id="body" bgcolor="black">
+        <div id="invisible-layer"></div>
         <div id="stageArea">
             <div id="stage" class="stage">
             </div>
@@ -40,22 +50,30 @@
                 
               $( document ).ready(function() {
                 $(body).css({pointerEvents:"none"});
+                $("#invisible-layer").click(function( event ) {
+                event.stopPropagation();
+                // Do something
+                });
                 var getUrl = window.location;
                 $.get('./assets/header.json').done(function(response){
                     let id = response.title.substring(0, response.title.indexOf("."));
                     identification = id;
-
-                    $.get(getUrl .protocol + "//" + getUrl.host + "/" +getUrl.pathname.split('/')[1] + "/" + '/getpage.php?id='+identification).done(function(response2){
+                    let page = getUrl.href.substring(getUrl.href.indexOf("#")+1, getUrl.href.length);
+                    console.log(page);
+                    $.get(getUrl.protocol + "//" + getUrl.host + "/" +getUrl.pathname.split('/')[1] + '/getpage.php?id='+identification).done(function(response2){
                             let resposta2 = JSON.parse(response2);
-                            window.location.hash = "#"+resposta2.paginaAtual;
+                            if(page !== resposta2.paginaAtual){
+                                window.location.hash = "#"+resposta2.paginaAtual;
+                                window.location.reload();
+                            }
                     }); 
                     setInterval(()=>{
-                        $.get(getUrl .protocol + "//" + getUrl.host + "/" +getUrl.pathname.split('/')[1] + "/" + '/getpage.php?id='+identification).done(function(response){
+                        $.get(getUrl .protocol + "//" + getUrl.host + "/" +getUrl.pathname.split('/')[1] + '/getpage.php?id='+identification).done(function(response){
                             let resposta = JSON.parse(response);
                             let paginaAtual = resposta.paginaAtual;
                             let paginaAnterior = resposta.paginaAnterior;
                             if(paginaAnterior !== paginaAtual){
-                                $.post(getUrl .protocol + "//" + getUrl.host + "/" +getUrl.pathname.split('/')[1] + "/" + '/setpageanterior.php', {page:paginaAtual, id:identification}).done(function(response2){
+                                $.post(getUrl .protocol + "//" + getUrl.host + "/" +getUrl.pathname.split('/')[1] + '/setpageanterior.php', {page:paginaAtual, id:identification}).done(function(response2){
                                 window.location.hash = "#"+paginaAtual;
                                 location.reload();
                             }); 

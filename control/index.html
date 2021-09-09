@@ -32,22 +32,24 @@
         <script type="text/javascript" src="../assets/player/main.js"></script></body>
         <script type="text/javascript">
             let identification = "";
+            let interval;
             const sideBar = document.getElementById("slideshowNavigator");
             sideBar.style.display = "none";
             window.addEventListener("keydown", function (event) {
                 event.stopPropagation();
             }, true);
-            window.addEventListener('hashchange', function() {
+            $(window).on('hashchange',function() {
+                var getUrl = window.location;
                 let pagina = window.location.hash.substring(1,window.location.hash.length);
                 if(pagina !== ""){
-                    $.post(getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1] + "/" + '/setpageatual.php', {page:pagina, id:identification}).done(function(response){
+                    $.post(getUrl.protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1] + "/" + '/setpageatual.php', {page:pagina, id:identification}).done(function(response){
                     });
                 }else{
-                    $.post(getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1] + "/" + '/setpageatual.php', {page:0, id:identification}).done(function(response){
+                    $.post(getUrl.protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1] + "/" + '/setpageatual.php', {page:0, id:identification}).done(function(response){
                     });
                 }
                 location.reload();
-            }, false);
+            });
             $('body').click(function(){
                 var getUrl = window.location;
                 $.get(getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1] + "/" + getUrl.pathname.split('/')[2] + '/assets/header.json').done(function(response){
@@ -59,10 +61,19 @@
                     $.post(getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1] + "/" + '/setpageatual.php', {page:pagina, id:identification}).done(function(response){
                     }); 
                 },500);
+                try{
+                    clearInterval(interval);
+                    interval = setInterval(()=>{
+                        let pagina = window.location.hash.substring(1,window.location.hash.length);
+                        $.post(getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1] + "/" + '/setpageatual.php', {page:pagina, id:identification}).done(function(response){
+                        }); 
+                    },2000);
+                }catch(err){}
               });
               
               $( document ).ready(function() {
                 var getUrl = window.location;
+                console.log(getUrl);
                 $.get(getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1] + "/" + getUrl.pathname.split('/')[2] + '/assets/header.json').done(function(response){
                         let id = response.title.substring(0, response.title.indexOf("."));
                         identification = id;
